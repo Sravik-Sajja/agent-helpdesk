@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import pipeline
 
 app = FastAPI()
 
@@ -17,4 +18,6 @@ class RequestData(BaseModel):
 
 @app.post("/initial")
 def health_check(data: RequestData):
-    return {"received": data.message}
+    message = data.message
+    response = pipeline.call_bot(message)
+    return {"response": response}
