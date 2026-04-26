@@ -27,8 +27,8 @@ Return ONLY valid JSON with this exact schema:
  
 Be precise. Extract only what is explicitly stated or strongly implied."""
 
-def call_bot(messsage):
-    '''Calls chatbot with patient message and returns JSON response'''
+def call_bot(messsage: str) -> dict[str, Any]:
+    """Calls chatbot with patient message and returns JSON response"""
     response = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=300,

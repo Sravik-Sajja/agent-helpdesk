@@ -1,6 +1,7 @@
 import sqlite3
 import json
 from pathlib import Path
+from datetime import datetime
 
 base_dir = Path(__file__).resolve().parent
 DB_PATH = base_dir / "tasks.db"
@@ -28,7 +29,8 @@ def create_table():
         """)
         conn.commit()
 
-def insert_task(raw_message, intent, entities, confidence, route, notes):
+def insert_task(raw_message: str, intent: str, entities: dict, confidence: float, route: str, notes: str = "") -> int:
+    """Takes in user message and chatbot parse adding to database table"""
     with get_connection() as conn:
         cursor = conn.execute(
             """
@@ -57,7 +59,7 @@ def get_all_tasks():
     return [dict(r) for r in rows]
  
  
-def update_task_status(task_id, status):
+def update_task_status(task_id: int, status: str):
     with get_connection() as conn:
         conn.execute(
             "UPDATE intake_tasks SET status = ? WHERE id = ?",
