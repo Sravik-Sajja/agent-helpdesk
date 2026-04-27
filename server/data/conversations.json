@@ -1,0 +1,72 @@
+[
+    {
+      "id": "conv_001",
+      "message": "Hi, I need to reschedule my cardiology appointment that was set for next Tuesday. I'm available any afternoon next week. My insurance is BlueCross.",
+      "expected_intent": "reschedule_appointment",
+      "expected_entities": {"specialty": "cardiology", "preferred_time": "afternoon", "insurance": "BlueCross"},
+      "expected_route": "self_schedule"
+    },
+    {
+      "id": "conv_002",
+      "message": "I've been having chest pains for the past two days and feel short of breath. Should I come in?",
+      "expected_intent": "urgent_symptom_report",
+      "expected_entities": {"symptoms": ["chest pain", "shortness of breath"], "duration": "2 days"},
+      "expected_route": "human_handoff"
+    },
+    {
+      "id": "conv_003",
+      "message": "Can you tell me if Dr. Patel is accepting new patients for dermatology?",
+      "expected_intent": "provider_inquiry",
+      "expected_entities": {"provider": "Dr. Patel", "specialty": "dermatology"},
+      "expected_route": "follow_up_questions"
+    },
+    {
+      "id": "conv_004",
+      "message": "I want to cancel my appointment on Friday the 15th with the orthopedics team.",
+      "expected_intent": "cancel_appointment",
+      "expected_entities": {"specialty": "orthopedics", "date": "Friday the 15th"},
+      "expected_route": "self_schedule"
+    },
+    {
+      "id": "conv_005",
+      "message": "I need a referral to see a neurologist. My primary care doctor said I should get one but didn't send anything over yet.",
+      "expected_intent": "referral_request",
+      "expected_entities": {"specialty": "neurology", "referring_provider": "primary care"},
+      "expected_route": "follow_up_questions"
+    },
+    {
+      "id": "conv_006",
+      "message": "What are your office hours and do you have Saturday appointments for pediatrics?",
+      "expected_intent": "general_inquiry",
+      "expected_entities": {"specialty": "pediatrics", "preferred_time": "Saturday"},
+      "expected_route": "follow_up_questions"
+    },
+    {
+      "id": "conv_007",
+      "message": "My daughter is 4 years old and has a fever of 104 that won't break. We need to be seen immediately.",
+      "expected_intent": "urgent_symptom_report",
+      "expected_entities": {"patient_age": "4", "symptoms": ["fever"], "severity": "high"},
+      "expected_route": "human_handoff"
+    },
+    {
+      "id": "conv_008",
+      "message": "I'd like to book a routine annual physical. I have Aetna insurance and prefer mornings on weekdays.",
+      "expected_intent": "new_appointment",
+      "expected_entities": {"appointment_type": "annual physical", "insurance": "Aetna", "preferred_time": "morning weekdays"},
+      "expected_route": "self_schedule"
+    },
+    {
+      "id": "conv_009",
+      "message": "I got a bill that seems wrong. I was charged for a specialist visit but I only saw a nurse practitioner.",
+      "expected_intent": "billing_dispute",
+      "expected_entities": {"issue_type": "billing error", "provider_type": "nurse practitioner"},
+      "expected_route": "human_handoff"
+    },
+    {
+      "id": "conv_010",
+      "message": "Can I get a prescription refill for my metformin? I'm running low and my next appointment isn't for another month.",
+      "expected_intent": "prescription_refill",
+      "expected_entities": {"medication": "metformin"},
+      "expected_route": "follow_up_questions"
+    }
+  ]
