@@ -20,12 +20,15 @@ def evaluate():
     route_correct = 0
     total = len(conversations)
 
-    print(f"{'ID':<12} {'INTENT OK':<12} {'ROUTE OK':<12} {'CONFIDENCE':<12} {'INTENT'}")
+    print(f"{'ID':<12} {'INTENT OK':<12} {'ROUTE OK':<12} {'ENTITIES':<12} {'URGENCY': <12} {'CONFIDENCE':<12} {'INTENT'}")
 
     for conv in conversations:
         msg = conv["message"]
         expected_intent = conv["expected_intent"]
         expected_route = conv["expected_route"]
+        expected_entities = conv["expected_entities"]
+        set_of_expected_entities = set(expected_entities.keys())
+        expected_urgency = expected_entities.get("urgency", "unknown")
 
         try:
             ai_result = call_bot(msg)
@@ -34,13 +37,21 @@ def evaluate():
             continue
 
         predicted_intent = ai_result.get("intent", "")
-        entities = ai_result.get("entities", {})
-        confidence = float(ai_result.get("confidence", 0))
+        predicted_entities = ai_result.get("entities", {})
+        set_of_predicted_entities = set()
+        for entity in predicted_entities.keys():
+            if predicted_entities[entity]:
+                set_of_predicted_entities.add(entity)
 
-        predicted_route, _ = route(predicted_intent, entities, confidence, msg)
+        confidence = float(ai_result.get("confidence", 0))
+        predicted_urgency = predicted_entities.get("urgency", "unknown")
+
+        predicted_route, _ = route(predicted_intent, predicted_entities, confidence, msg)
 
         correct_intent = predicted_intent == expected_intent
         correct_route = predicted_route == expected_route
+        correct_entities = set_of_expected_entities == set_of_predicted_entities
+        correct_urgency = predicted_urgency == expected_urgency
 
         if correct_intent:
             intent_correct += 1
@@ -49,8 +60,10 @@ def evaluate():
 
         tick_i = "✓" if correct_intent else "✗"
         tick_r = "✓" if correct_route else "✗"
+        tick_e = "✓" if correct_entities else "✗"
+        tick_u = "✓" if correct_urgency else "✗"
         print(
-            f"{conv['id']:<12} {tick_i + ' intent':<12} {tick_r + ' route':<12} "
+            f"{conv['id']:<12} {tick_i + ' intent':<12} {tick_r + ' route':<12} {tick_e + ' entities':<12} {tick_u + ' urgency':<12}"
             f"{confidence:<12.0%} {predicted_intent}"
         )
 
