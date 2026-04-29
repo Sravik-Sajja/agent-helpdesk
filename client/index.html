@@ -42,6 +42,10 @@
 </head>
 
 <body>
+  <nav style="margin-bottom:32px">
+    <a href="index.html">Intake</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
 
   <h1>Patient Request Intake</h1>
 
@@ -63,7 +67,7 @@
       resultBox.innerText = "Processing...";
 
       try {
-        const response = await fetch("http://localhost:8000/initial", {
+        const response = await fetch("http://localhost:8000/chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 20px;
+    }
+
+    nav { margin-bottom: 32px; }
+    nav a { margin-right: 16px; font-size: 14px; color: #333; text-decoration: none; }
+    nav a.active { font-weight: bold; }
+
+    .stats { display: flex; gap: 24px; margin-bottom: 32px; }
+    .stat { font-size: 14px; color: #555; }
+    .stat span { font-weight: bold; color: #111; font-size: 20px; display: block; }
+
+    .task {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .task .message { margin-bottom: 8px; }
+    .task .meta { color: #666; font-size: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    .urgency-high   { border-left: 4px solid #e53e3e; }
+    .urgency-medium { border-left: 4px solid #d97706; }
+    .urgency-low    { border-left: 4px solid #38a169; }
+
+    .section-title { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 0.05em; margin: 24px 0 10px; }
+
+    select { font-size: 12px; padding: 2px 6px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
+    button { font-size: 13px; padding: 6px 12px; cursor: pointer; }
+    #error { color: red; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html">Intake</a>
+    <a href="dashboard.html" class="active">Dashboard</a>
+  </nav>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h1 style="font-size:20px;">Task Queue</h1>
+    <button onclick="load()">Refresh</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat">Total<span id="stat-total">—</span></div>
+    <div class="stat">High<span id="stat-high" style="color:#e53e3e">—</span></div>
+    <div class="stat">Medium<span id="stat-med" style="color:#d97706">—</span></div>
+    <div class="stat">Low<span id="stat-low" style="color:#38a169">—</span></div>
+  </div>
+
+  <div id="error"></div>
+  <div id="task-list">Loading...</div>
+
+<script>
+  const API = "http://localhost:8000";
+  const STATUSES = ["pending", "in_progress", "resolved", "escalated"];
+
+  async function updateStatus(id, status) {
+    await fetch(`${API}/tasks/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+  }
+
+  function renderGroup(title, tasks) {
+    if (!tasks.length) return "";
+    const cards = tasks.map(t => {
+      const urgency = t.entities?.urgency || "low";
+      const opts = STATUSES.map(s =>
+        `<option value="${s}" ${s === t.status ? "selected" : ""}>${s.replace("_", " ")}</option>`
+      ).join("");
+      return `
+        <div class="task urgency-${urgency}">
+          <div class="message">${t.raw_message}</div>
+          <div class="meta">
+            <span>${t.intent.replace(/_/g, " ")}</span>
+            <span>${t.route.replace(/_/g, " ")}</span>
+            <span>${Math.round(t.confidence * 100)}% confidence</span>
+            <span>${new Date(t.created_at + "Z").toLocaleString()}</span>
+            <select onchange="updateStatus(${t.id}, this.value)">${opts}</select>
+          </div>
+        </div>`;
+    }).join("");
+    return `<div class="section-title">${title}</div>${cards}`;
+  }
+
+  async function load() {
+    document.getElementById("task-list").innerText = "Loading...";
+    document.getElementById("error").innerText = "";
+    try {
+      const res = await fetch(`${API}/dashboard`);
+      const data = await res.json();
+      const tasks = data.tasks || [];
+
+      const high = tasks.filter(t => t.entities?.urgency === "high");
+      const med  = tasks.filter(t => t.entities?.urgency === "medium");
+      const low  = tasks.filter(t => t.entities?.urgency === "low");
+
+      document.getElementById("stat-total").textContent = tasks.length;
+      document.getElementById("stat-high").textContent  = high.length;
+      document.getElementById("stat-med").textContent   = med.length;
+      document.getElementById("stat-low").textContent   = low.length;
+
+      document.getElementById("task-list").innerHTML =
+        renderGroup("High urgency", high) +
+        renderGroup("Medium urgency", med) +
+        renderGroup("Low urgency", low) ||
+        "No tasks yet.";
+    } catch (err) {
+      document.getElementById("error").innerText = "Could not connect to server: " + err.message;
+      document.getElementById("task-list").innerText = "";
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
