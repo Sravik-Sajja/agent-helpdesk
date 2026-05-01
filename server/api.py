@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pipeline import call_bot
-from database import insert_task
+from database import insert_task, update_task_status
 from router import route
 from dashboard import get_dashboard_data
 import logging
@@ -46,4 +46,16 @@ def dashboard():
         return {"tasks": tasks}
     except Exception as exc:
         log.error("Dashboard error: %s", exc)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+class StatusUpdate(BaseModel):
+    status: str
+
+@app.patch("/tasks/{task_id}/status")
+def updateTaskStatus(task_id: int, data: StatusUpdate):
+    try:
+        update_task_status(task_id, data.status)
+        return {"success": True}
+    except Exception as exc:
+        log.error("Task Update error: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))
