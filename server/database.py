@@ -24,18 +24,19 @@ def create_table():
                 confidence REAL,
                 route TEXT,
                 status TEXT DEFAULT 'pending',
-                notes TEXT
+                notes TEXT,
+                previous_context TEXT
             )
         """)
         conn.commit()
 
-def insert_task(raw_message: str, intent: str, entities: dict, confidence: float, route: str, notes: str = "") -> int:
+def insert_task(raw_message: str, intent: str, entities: dict, confidence: float, route: str, previous_context: dict, notes: str = "") -> int:
     """Takes in user message and chatbot parse adding to database table"""
     with get_connection() as conn:
         cursor = conn.execute(
             """
-            INSERT INTO intake_tasks (created_at, raw_message, intent, entities, confidence, route, status, notes)
-            VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
+            INSERT INTO intake_tasks (created_at, raw_message, intent, entities, confidence, route, status, notes, previous_context)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
             """,
             (
                 datetime.utcnow().isoformat(),
@@ -45,6 +46,7 @@ def insert_task(raw_message: str, intent: str, entities: dict, confidence: float
                 confidence,
                 route,
                 notes,
+                json.dumps(previous_context) if previous_context else None
             ),
         )
         conn.commit()
@@ -66,3 +68,6 @@ def update_task_status(task_id: int, status: str):
             (status, task_id),
         )
         conn.commit()
+
+if __name__ == "__main__":
+    create_table()

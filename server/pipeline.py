@@ -2,9 +2,13 @@ from dotenv import load_dotenv
 from anthropic import Anthropic
 import os
 import json
+import logging
+
+log = logging.getLogger(__name__)
 
 load_dotenv()
 client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
 SYSTEM_PROMPT = """You are a medical intake assistant. Analyze patient messages and return structured JSON.
  
 Return ONLY valid JSON with this exact schema:
@@ -25,15 +29,26 @@ Return ONLY valid JSON with this exact schema:
   "reasoning": "<one sentence explaining why you chose this intent>"
 }
  
-"Be precise. Extract only what is explicitly stated. Do not infer specialty from symptoms."""
+Be precise. Extract only what is explicitly stated. Do not infer specialty from symptoms."""
 
-def call_bot(message: str) -> dict[str, Any]:
+
+def call_bot(message: str, previous_context: dict = None) -> dict:
     """Calls chatbot with patient message and returns JSON response"""
+
+    if previous_context:
+        user_content = f"""Original message: {previous_context['original_message']}
+                        Previous extraction: {json.dumps(previous_context['previous_json'])}
+                        User follow-up answer: {message}
+
+                        Update the extraction with the new information provided. Don't change original message"""
+    else:
+        user_content = message
+
     response = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=500,
-        system = SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": message}]
+        system=SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": user_content}]
     )
     raw = response.content[0].text.strip()
 
@@ -41,6 +56,41 @@ def call_bot(message: str) -> dict[str, Any]:
         raw = raw.split("```")[1]
         if raw.startswith("json"):
             raw = raw[4:]
- 
-    result = json.loads(raw.strip())
+
+    try:
+        result = json.loads(raw.strip())
+    except json.JSONDecodeError as e:
+        log.error("Failed to parse LLM response: %s\nRaw output: %s", e, raw)
+        raise ValueError(f"LLM returned invalid JSON: {raw[:200]}")
+
     return result
+
+
+def generate_follow_up(entities: dict, missing_fields: list) -> list:
+    system_prompt = """
+                    You are a medical intake assistant. Generate friendly follow-up questions to collect missing patient information. 
+                    Use simple everyday language — do not use medical jargon like 'specialty' or technical terms the patient may not 
+                    understand. Do not assume or suggest any specific dates, times, or details. Return ONLY a valid JSON array of question strings, nothing else.
+                    """
+
+    response = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=300,
+        system=system_prompt,
+        messages=[{
+            "role": "user",
+            "content": f"Extracted so far: {json.dumps(entities)}\nMissing required fields: {missing_fields}\nGenerate one short friendly question per missing field."
+        }]
+    )
+    raw = response.content[0].text.strip()
+
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+
+    try:
+        return json.loads(raw.strip())
+    except json.JSONDecodeError as e:
+        log.error("Failed to parse follow-up questions: %s\nRaw output: %s", e, raw)
+        return [f"Could you provide your {field}?" for field in missing_fields]

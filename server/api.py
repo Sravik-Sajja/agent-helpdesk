@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from pipeline import call_bot
+from pipeline import call_bot, generate_follow_up
 from database import insert_task, update_task_status
 from router import route
 from dashboard import get_dashboard_data
@@ -20,20 +20,33 @@ app.add_middleware(
 
 class RequestData(BaseModel):
     message: str
+    previous_context: dict | None = None
 
 @app.post("/chat")
 def chat(data: RequestData):
     try:
         message = data.message
-        chatbot_response = call_bot(message)
-        intent = chatbot_response.get("intent", "unknown")
+        chatbot_response = call_bot(message, data.previous_context)
+        intent = chatbot_response.get("intent")
         entities = chatbot_response.get("entities", {})
         confidence = float(chatbot_response.get("confidence", 0.5))
 
-        action, reason = route(intent, entities, confidence, message)
+        action, reason, missing = route(intent, entities, confidence, message)
 
-        insert_task(message, intent, entities, confidence, action, reason)
-        return {"action": action, "reason": reason}
+        follow_up_questions = []
+        if action == "follow_up_questions":
+            follow_up_questions = generate_follow_up(entities, missing)
+
+        if action != "follow_up_questions": insert_task(message, intent, entities, confidence, action, data.previous_context, reason)
+        return {
+            "action": action,
+            "reason": reason,
+            "follow_up_questions": follow_up_questions if action == "follow_up_questions" else [],
+            "context": {
+                "original_message": message,
+                "previous_json": chatbot_response
+            } if action == "follow_up_questions" else None
+        }
 
     except Exception as exc:
         log.error("Chat error: %s", exc)

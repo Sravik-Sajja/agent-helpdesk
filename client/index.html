@@ -60,6 +60,8 @@
   <div class="result" id="resultBox"></div>
 
   <script>
+    let storedContext = null;
+
     async function sendRequest() {
       const text = document.getElementById("inputText").value;
 
@@ -67,15 +69,24 @@
       resultBox.innerText = "Processing...";
 
       try {
+        const body = { message: text };
+        if (storedContext) body.previous_context = storedContext;
+
         const response = await fetch("http://localhost:8000/chat", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({ message: text })
+          body: JSON.stringify(body)
         });
 
         const data = await response.json();
+
+        if (data.action === "follow_up_questions") {
+          storedContext = data.context;
+        } else {
+          storedContext = null;
+        }
 
         resultBox.innerText = JSON.stringify(data, null, 2);
 
