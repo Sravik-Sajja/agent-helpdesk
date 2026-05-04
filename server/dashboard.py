@@ -2,6 +2,7 @@ from database import get_all_tasks
 import json
 
 def get_dashboard_data():
+    """Fetches dashboard data, ordering by urgency + oldest to newest date"""
     all_tasks = get_all_tasks()
 
     for task in all_tasks:

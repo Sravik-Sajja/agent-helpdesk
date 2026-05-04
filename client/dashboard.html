@@ -80,12 +80,15 @@
     if (!tasks.length) return "";
     const cards = tasks.map(t => {
       const urgency = t.entities?.urgency || "low";
+      const message = t.previous_context
+        ? JSON.parse(t.previous_context).conversation_history.join(" → ")
+        : t.raw_message;
       const opts = STATUSES.map(s =>
         `<option value="${s}" ${s === t.status ? "selected" : ""}>${s.replace("_", " ")}</option>`
       ).join("");
       return `
         <div class="task urgency-${urgency}">
-          <div class="message">${t.raw_message}</div>
+          <div class="message">${message}</div>
           <div class="meta">
             <span>${t.intent.replace(/_/g, " ")}</span>
             <span>${t.route.replace(/_/g, " ")}</span>

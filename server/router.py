@@ -26,7 +26,9 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
         missing = []
         if not entities.get("specialty"): missing.append("specialty")
         if not entities.get("date"): missing.append("date")
-        if not entities.get("preferred_time"): missing.append("preferred_time")
+        #Ignore preferred_time for cancel_appointment
+        if intent == "reschedule_appointment" or intent == "new_appointment":
+            if not entities.get("preferred_time"): missing.append("preferred_time")
 
         if not missing:
             return "self_schedule", "Sufficient detail for patient self-scheduling", []
@@ -34,7 +36,26 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
             return "follow_up_questions", f"Missing {', '.join(missing)} for self-scheduling", missing
 
     if intent in FOLLOW_UP_INTENTS:
-        return "follow_up_questions", f"Intent '{intent}' requires additional information", ["additional_info"]
+        missing = []
+        if intent == "prescription_refill" and not entities.get("medication"):
+            missing.append("medication name")
+        if intent == "referral_request" and not entities.get("specialty"):
+            missing.append("type of doctor or care they need")
+        if intent == "provider_inquiry":
+            provider = entities.get("provider", "").lower()
+            if not provider:
+                missing.append("doctor or provider name")
+            else:
+                # Would query providers table here e.g. SELECT * FROM providers WHERE name = ?
+                return "auto_response", f"Provider lookup for {provider} — would pull from DB", []
+        if intent == "general_inquiry":
+            # Would query FAQ/knowledge base table here
+            return "auto_response", "General inquiry — would pull from database", []
+
+        if missing:
+            return "follow_up_questions", f"Missing {', '.join(missing)}", missing
+
+        return "human_handoff", f"Sufficient detail collected for '{intent}' — routing to staff", []
 
     # Fallback
     return "follow_up_questions", "Unrecognized intent — defaulting to follow-up", ["intent"]

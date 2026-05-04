@@ -31,11 +31,16 @@ def chat(data: RequestData):
         entities = chatbot_response.get("entities", {})
         confidence = float(chatbot_response.get("confidence", 0.5))
 
+        conversation_history = []
+        if data.previous_context:
+            conversation_history = data.previous_context.get("conversation_history", [])
+        conversation_history.append(message)
+
         action, reason, missing = route(intent, entities, confidence, message)
 
         follow_up_questions = []
         if action == "follow_up_questions":
-            follow_up_questions = generate_follow_up(entities, missing)
+            follow_up_questions = generate_follow_up(entities, reason, missing)
 
         if action != "follow_up_questions": insert_task(message, intent, entities, confidence, action, data.previous_context, reason)
         return {
@@ -43,7 +48,7 @@ def chat(data: RequestData):
             "reason": reason,
             "follow_up_questions": follow_up_questions if action == "follow_up_questions" else [],
             "context": {
-                "original_message": message,
+                "conversation_history": conversation_history,
                 "previous_json": chatbot_response
             } if action == "follow_up_questions" else None
         }

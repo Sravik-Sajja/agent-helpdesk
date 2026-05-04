@@ -46,7 +46,7 @@ def evaluate():
         confidence = float(ai_result.get("confidence", 0))
         predicted_urgency = predicted_entities.get("urgency", "unknown")
 
-        predicted_route, _ = route(predicted_intent, predicted_entities, confidence, msg)
+        predicted_route, _, _= route(predicted_intent, predicted_entities, confidence, msg)
 
         correct_intent = predicted_intent == expected_intent
         correct_route = predicted_route == expected_route

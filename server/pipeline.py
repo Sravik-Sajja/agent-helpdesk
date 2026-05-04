@@ -28,6 +28,8 @@ Return ONLY valid JSON with this exact schema:
   "confidence": <float 0.0 to 1.0 — how confident you are in the intent classification>,
   "reasoning": "<one sentence explaining why you chose this intent>"
 }
+"general_inquiry: patient is asking about office information, hours, etc— use this when no specific doctor is mentioned"
+"provider_inquiry: patient is asking about a specific named doctor or staff member"
  
 Be precise. Extract only what is explicitly stated. Do not infer specialty from symptoms."""
 
@@ -36,11 +38,14 @@ def call_bot(message: str, previous_context: dict = None) -> dict:
     """Calls chatbot with patient message and returns JSON response"""
 
     if previous_context:
-        user_content = f"""Original message: {previous_context['original_message']}
-                        Previous extraction: {json.dumps(previous_context['previous_json'])}
-                        User follow-up answer: {message}
+        history = previous_context.get("conversation_history", [])
+        history_text = "\n".join([f"User: {m}" for m in history])
+        user_content = f"""Conversation so far:
+                        {history_text}
 
-                        Update the extraction with the new information provided. Don't change original message"""
+                        Previous extraction: {json.dumps(previous_context['previous_json'])}
+
+                        Update the extraction with the new information provided."""
     else:
         user_content = message
 
@@ -66,7 +71,8 @@ def call_bot(message: str, previous_context: dict = None) -> dict:
     return result
 
 
-def generate_follow_up(entities: dict, missing_fields: list) -> list:
+def generate_follow_up(entities: dict, reason: str, missing_fields: list) -> list:
+    """Generates follow up questions to get full information from patient"""
     system_prompt = """
                     You are a medical intake assistant. Generate friendly follow-up questions to collect missing patient information. 
                     Use simple everyday language — do not use medical jargon like 'specialty' or technical terms the patient may not 
@@ -79,7 +85,10 @@ def generate_follow_up(entities: dict, missing_fields: list) -> list:
         system=system_prompt,
         messages=[{
             "role": "user",
-            "content": f"Extracted so far: {json.dumps(entities)}\nMissing required fields: {missing_fields}\nGenerate one short friendly question per missing field."
+            "content": f""" Reason for follow-up question: {reason}
+                        Extracted so far: {json.dumps(entities)}
+                        Missing required fields: {missing_fields}
+                        Generate one short friendly question per missing field."""
         }]
     )
     raw = response.content[0].text.strip()
