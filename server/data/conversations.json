@@ -68,5 +68,179 @@
       "expected_intent": "prescription_refill",
       "expected_entities": {"medication": "metformin", "urgency": "medium"},
       "expected_route": "human_handoff"
+    },
+    {
+      "id": "conv_011",
+      "type": "multi_turn",
+      "description": "Reschedule missing date — follow-up provides it",
+      "turns": [
+        {
+          "turn": 1,
+          "message": "I need to reschedule my dermatology appointment, I'm free in the mornings.",
+          "expected_intent": "reschedule_appointment",
+          "expected_entities": {
+            "specialty": "dermatology",
+            "preferred_time": "morning",
+            "urgency": "low"
+          },
+          "expected_route": "follow_up_questions"
+        },
+        {
+          "turn": 2,
+          "message": "Next Thursday works for me.",
+          "expected_intent": "reschedule_appointment",
+          "expected_entities": {
+            "specialty": "dermatology",
+            "date": "next Thursday",
+            "preferred_time": "morning",
+            "urgency": "low"
+          },
+          "expected_route": "self_schedule"
+        }
+      ]
+    },
+    {
+      "id": "conv_012",
+      "type": "multi_turn",
+      "description": "Provider inquiry — patient names doctor only after follow-up",
+      "turns": [
+        {
+          "turn": 1,
+          "message": "I wanted to ask about one of your doctors.",
+          "expected_intent": "provider_inquiry",
+          "expected_entities": {
+            "urgency": "low"
+          },
+          "expected_route": "follow_up_questions"
+        },
+        {
+          "turn": 2,
+          "message": "Dr. Kim — I heard she does sports medicine. Is she taking new patients?",
+          "expected_intent": "provider_inquiry",
+          "expected_entities": {
+            "provider": "Dr. Kim",
+            "specialty": "sports medicine",
+            "urgency": "low"
+          },
+          "expected_route": "auto_response"
+        }
+      ]
+    },
+    {
+      "id": "conv_013",
+      "type": "multi_turn",
+      "description": "Prescription refill — missing medication name resolved in turn 2",
+      "turns": [
+        {
+          "turn": 1,
+          "message": "Hi, I need a refill on my blood pressure medication.",
+          "expected_intent": "prescription_refill",
+          "expected_entities": {
+            "urgency": "medium"
+          },
+          "expected_route": "follow_up_questions"
+        },
+        {
+          "turn": 2,
+          "message": "It's lisinopril, 10mg.",
+          "expected_intent": "prescription_refill",
+          "expected_entities": {
+            "medication": "lisinopril",
+            "urgency": "medium"
+          },
+          "expected_route": "human_handoff"
+        }
+      ]
+    },
+    {
+      "id": "conv_014",
+      "type": "multi_turn",
+      "description": "Referral request — specialty clarified in follow-up",
+      "turns": [
+        {
+          "turn": 1,
+          "message": "My doctor told me I need a referral but I'm not sure how to get one through your office.",
+          "expected_intent": "referral_request",
+          "expected_entities": {
+            "urgency": "medium"
+          },
+          "expected_route": "follow_up_questions"
+        },
+        {
+          "turn": 2,
+          "message": "She said I need to see a cardiologist.",
+          "expected_intent": "referral_request",
+          "expected_entities": {
+            "specialty": "cardiology",
+            "urgency": "medium"
+          },
+          "expected_route": "human_handoff"
+        }
+      ]
+    },
+    {
+      "id": "conv_015",
+      "type": "multi_turn",
+      "description": "Low confidence initial message — clarified as reschedule in turn 2",
+      "turns": [
+        {
+          "turn": 1,
+          "message": "Something came up and I can't make it.",
+          "expected_intent": "cancel_appointment",
+          "expected_entities": {
+            "urgency": "low"
+          },
+          "expected_route": "follow_up_questions"
+        },
+        {
+          "turn": 2,
+          "message": "My rheumatology appointment on the 22nd — can we move it to the following week, afternoons are best.",
+          "expected_intent": "reschedule_appointment",
+          "expected_entities": {
+            "specialty": "rheumatology",
+            "date": "the 22nd",
+            "preferred_time": "afternoon",
+            "urgency": "low"
+          },
+          "expected_route": "self_schedule"
+        }
+      ]
+    },
+    {
+      "id": "conv_016",
+      "type": "multi_turn",
+      "description": "New appointment — specialty then date then time each added one turn at a time",
+      "turns": [
+        {
+          "turn": 1,
+          "message": "I'd like to make an appointment.",
+          "expected_intent": "new_appointment",
+          "expected_entities": {
+            "urgency": "low"
+          },
+          "expected_route": "follow_up_questions"
+        },
+        {
+          "turn": 2,
+          "message": "It's for dermatology.",
+          "expected_intent": "new_appointment",
+          "expected_entities": {
+            "specialty": "dermatology",
+            "urgency": "low"
+          },
+          "expected_route": "follow_up_questions"
+        },
+        {
+          "turn": 3,
+          "message": "Any day next week, mornings work best for me.",
+          "expected_intent": "new_appointment",
+          "expected_entities": {
+            "specialty": "dermatology",
+            "preferred_time": "morning",
+            "urgency": "low"
+          },
+          "expected_route": "self_schedule"
+        }
+      ]
     }
   ]

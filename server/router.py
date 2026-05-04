@@ -42,7 +42,7 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
         if intent == "referral_request" and not entities.get("specialty"):
             missing.append("type of doctor or care they need")
         if intent == "provider_inquiry":
-            provider = entities.get("provider", "").lower()
+            provider = (entities.get("provider") or "").lower()
             if not provider:
                 missing.append("doctor or provider name")
             else:

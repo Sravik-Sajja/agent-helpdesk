@@ -21,15 +21,15 @@ Return ONLY valid JSON with this exact schema:
     "preferred_time": "<time preference like morning/afternoon/weekend, else null>",
     "insurance": "<insurance name if mentioned, else null>",
     "symptoms": ["<list of symptoms if mentioned>"],
-    "medication": "<medication name if mentioned, else null>",
+    "medication": "<specific medication name if mentioned, else null(e.g. aspirin -- not generic)>",
     "urgency": "<high/medium/low based on clinical language>",
     "appointment_type": "<type of visit e.g. annual physical — NOT medical specialty if mentioned, else null>"
   },
   "confidence": <float 0.0 to 1.0 — how confident you are in the intent classification>,
   "reasoning": "<one sentence explaining why you chose this intent>"
 }
-"general_inquiry: patient is asking about office information, hours, etc— use this when no specific doctor is mentioned"
-"provider_inquiry: patient is asking about a specific named doctor or staff member"
+"general_inquiry: patient is asking about office information, hours, etc"
+"provider_inquiry: patient is asking about a doctor or staff member(may need to ask them which one they are talking about)"
  
 Be precise. Extract only what is explicitly stated. Do not infer specialty from symptoms."""
 
@@ -44,6 +44,7 @@ def call_bot(message: str, previous_context: dict = None) -> dict:
                         {history_text}
 
                         Previous extraction: {json.dumps(previous_context['previous_json'])}
+                        User follow up: {message}
 
                         Update the extraction with the new information provided."""
     else:
