@@ -130,8 +130,7 @@ def evaluate():
     multi  = [c for c in conversations if c.get("type") == "multi_turn"]
 
     if single:
-        pass
-        #evaluate_single_turn(single)
+        evaluate_single_turn(single)
     if multi:
         evaluate_multi_turn(multi)
 
