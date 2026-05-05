@@ -15,12 +15,16 @@ SYSTEM_PROMPT = """You are a medical intake assistant. Analyze patient messages 
  
 Return ONLY valid JSON with this exact schema:
 {
-  "intent": "<one of: reschedule_appointment, cancel_appointment, new_appointment, urgent_symptom_report, prescription_refill, referral_request, provider_inquiry, billing_dispute, general_inquiry>",
+  "intent": "<one of: reschedule_appointment, cancel_appointment, new_appointment, urgent_symptom_report, prescription_refill, referral_request, provider_inquiry, billing_dispute, general_inquiry, none>",
   "entities": {
     "specialty": "<medical department or field e.g. cardiology, dermatology, orthopedics — NOT appointment type if mentioned, else null>",
     "provider": "<specific doctor name if mentioned, else null>",
-    "date": "<specific date or date range in YYYY-MM-DD format if inferable from context using the current date, else null>",
-    "preferred_time": "<time preference like morning/afternoon/weekend, else null>",
+    "date": "<specific date or date range in YYYY-MM-DD format using the current date. "
+        "For a range like 'next week' or 'any day next week': use YYYY-MM-DD to YYYY-MM-DD covering Monday to Friday of that week. "
+        "For 'this week': Current day to Friday of the current week. "
+        "Else null if no date mentioned.>"
+    "preferred_time": "<time preference like morning/afternoon, else null>",
+        "If they say anytime just put any here"
     "insurance": "<insurance name if mentioned, else null>",
     "symptoms": ["<list of symptoms if mentioned>"],
     "medication": "<specific medication name if mentioned, else null(e.g. aspirin -- not generic)>",
@@ -30,6 +34,7 @@ Return ONLY valid JSON with this exact schema:
   "confidence": <float 0.0 to 1.0 — how confident you are in the intent classification>,
   "reasoning": "<one sentence explaining why you chose this intent>"
 }
+"none: use when the message is a greeting, casual conversation, or has no relation to medical scheduling, appointments, symptoms, prescriptions, or billing and you had no previous intent given to you"
 "general_inquiry: patient is asking about office information, hours, etc"
 "provider_inquiry: patient is asking about a doctor or staff member(may need to ask them which one they are talking about)"
  
@@ -83,7 +88,7 @@ def call_bot(message: str, previous_context: dict = None, timezone: str = "UTC")
     return result
 
 
-def generate_follow_up(entities: dict, reason: str, missing_fields: list) -> list:
+def generate_follow_up(entities: dict, intent: str, reason: str, missing_fields: list) -> list:
     """Generates follow up questions to get full information from patient"""
     system_prompt = """
                     You are a medical intake assistant. Generate friendly follow-up questions to collect missing patient information. 
@@ -98,7 +103,8 @@ def generate_follow_up(entities: dict, reason: str, missing_fields: list) -> lis
         messages=[{
             "role": "user",
             "content": f""" Reason for follow-up question: {reason}
-                        Extracted so far: {json.dumps(entities)}
+                        Extracted intent: {intent}
+                        Extracted entities: {json.dumps(entities)}
                         Missing required fields: {missing_fields}
                         Generate one short friendly question per missing field."""
         }]

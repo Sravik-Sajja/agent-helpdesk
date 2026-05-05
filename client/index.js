@@ -54,9 +54,10 @@ function appendBotBubble(data) {
   } else {
     const msgs = {
       human_handoff:       "Your request has been flagged for a staff member who will follow up shortly.",
-      self_schedule:       "You're all set — your scheduling request has been logged.",
-      auto_response:       "We found information that may help. A staff member can confirm details.",
-      follow_up_questions: "We need a bit more information to help you."
+      self_schedule:       "You're all set — your scheduling request has been made.",
+      auto_response:       "We found information that may help. Would pull from a FAQ database here",
+      follow_up_questions: "We need a bit more information to help you.",
+      clarify:             "What can I help you with?",
     };
     bodyHtml = `<div class="bubble-body">${msgs[action] || "Request received."}</div>`;
   }

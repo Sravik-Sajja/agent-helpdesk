@@ -1,6 +1,7 @@
 HUMAN_HANDOFF_INTENTS = {"urgent_symptom_report", "billing_dispute"}
 SELF_SCHEDULE_INTENTS = {"reschedule_appointment", "cancel_appointment", "new_appointment"}
 FOLLOW_UP_INTENTS = {"prescription_refill", "referral_request", "provider_inquiry", "general_inquiry"}
+NO_INTENT = {"none"}
 
 LOW_CONFIDENCE_THRESHOLD = 0.55
 
@@ -24,7 +25,7 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
 
     if intent in SELF_SCHEDULE_INTENTS:
         missing = []
-        if not entities.get("specialty"): missing.append("specialty")
+        if not entities.get("specialty") and not entities.get("provider") and not entities.get("appointment_type"): missing.append("specialty/provider/appointment_type")
         if not entities.get("date"): missing.append("date")
         #Ignore preferred_time for cancel_appointment
         if intent == "reschedule_appointment" or intent == "new_appointment":
@@ -56,6 +57,9 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
             return "follow_up_questions", f"Missing {', '.join(missing)}", missing
 
         return "human_handoff", f"Sufficient detail collected for '{intent}' — routing to staff", []
+    
+    if intent in NO_INTENT:
+        return "clarify", "No useful information", []
 
     # Fallback
     return "follow_up_questions", "Unrecognized intent — defaulting to follow-up", ["intent"]

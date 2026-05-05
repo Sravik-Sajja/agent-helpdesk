@@ -71,6 +71,13 @@
     },
     {
       "id": "conv_011",
+      "message": "Hello, how are you?",
+      "expected_intent": "none",
+      "expected_entities": {"urgency": "low"},
+      "expected_route": "clarify"
+    },
+    {
+      "id": "conv_012",
       "type": "multi_turn",
       "description": "Reschedule missing date — follow-up provides it",
       "turns": [
@@ -100,7 +107,7 @@
       ]
     },
     {
-      "id": "conv_012",
+      "id": "conv_013",
       "type": "multi_turn",
       "description": "Provider inquiry — patient names doctor only after follow-up",
       "turns": [
@@ -127,7 +134,7 @@
       ]
     },
     {
-      "id": "conv_013",
+      "id": "conv_014",
       "type": "multi_turn",
       "description": "Prescription refill — missing medication name resolved in turn 2",
       "turns": [
@@ -153,7 +160,7 @@
       ]
     },
     {
-      "id": "conv_014",
+      "id": "conv_015",
       "type": "multi_turn",
       "description": "Referral request — specialty clarified in follow-up",
       "turns": [
@@ -179,7 +186,7 @@
       ]
     },
     {
-      "id": "conv_015",
+      "id": "conv_016",
       "type": "multi_turn",
       "description": "Low confidence initial message — clarified as reschedule in turn 2",
       "turns": [
@@ -207,7 +214,7 @@
       ]
     },
     {
-      "id": "conv_016",
+      "id": "conv_017",
       "type": "multi_turn",
       "description": "New appointment — specialty then date then time each added one turn at a time",
       "turns": [

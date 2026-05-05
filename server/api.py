@@ -43,9 +43,9 @@ def chat(data: RequestData):
 
         follow_up_questions = []
         if action == "follow_up_questions":
-            follow_up_questions = generate_follow_up(entities, reason, missing)
+            follow_up_questions = generate_follow_up(entities, intent, reason, missing)
 
-        if action != "follow_up_questions": insert_task(message, intent, entities, confidence, action, data.previous_context, reason)
+        if action != "follow_up_questions" and action != "clarify": insert_task(message, intent, entities, confidence, action, data.previous_context, reason)
         return {
             "action": action,
             "reason": reason,
