@@ -53,7 +53,7 @@ def chat(data: RequestData):
             "context": {
                 "conversation_history": conversation_history,
                 "previous_json": chatbot_response
-            } if action == "follow_up_questions" else None
+            }
         }
 
     except Exception as exc:

@@ -1,103 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Patient Intake</title>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 20px;
-    }
-
-    h1 {
-      font-size: 24px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 150px;
-      padding: 12px;
-      font-size: 14px;
-      margin-top: 10px;
-    }
-
-    button {
-      margin-top: 10px;
-      padding: 10px 16px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .result {
-      margin-top: 20px;
-      padding: 12px;
-      background: #f4f4f4;
-      white-space: pre-wrap;
-    }
-  </style>
+  <link rel="stylesheet" href="index.css"/>
 </head>
-
 <body>
-  <nav style="margin-bottom:32px">
-    <a href="index.html">Intake</a>
-    <a href="dashboard.html">Dashboard</a>
-  </nav>
 
-  <h1>Patient Request Intake</h1>
+<nav>
+  <a href="index.html" class="logo">INTAKE</a>
+  <a href="index.html" class="active">Chat</a>
+  <a href="dashboard.html">Dashboard</a>
+</nav>
 
-  <p>Enter patient message below:</p>
+<div id="chat">
+  <div id="empty">
+    <div class="icon">💬</div>
+    <div>Send a message to get started</div>
+  </div>
+</div>
 
-  <textarea id="inputText" placeholder="e.g. I want to reschedule my cardiology appointment to next week afternoon"></textarea>
+<div id="input-area">
+  <textarea id="msg" placeholder="Describe your request…" rows="1"></textarea>
+  <button id="send" onclick="send()">Send</button>
+</div>
 
-  <br/>
+<div id="panel-overlay" onclick="closePanel(event)">
+  <div id="detail-panel">
+    <div id="panel-header">
+      <h2>Response Details</h2>
+      <button id="panel-close" onclick="closePanel()">×</button>
+    </div>
+    <div id="panel-body"></div>
+  </div>
+</div>
 
-  <button onclick="sendRequest()">Submit</button>
-
-  <div class="result" id="resultBox"></div>
-
-  <script>
-    let storedContext = null;
-
-    async function sendRequest() {
-      const text = document.getElementById("inputText").value;
-
-      const resultBox = document.getElementById("resultBox");
-      resultBox.innerText = "Processing...";
-
-      try {
-        const body = {
-          message: text,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-        };
-        if (storedContext) body.previous_context = storedContext;
-
-        const response = await fetch("http://localhost:8000/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body)
-        });
-
-        const data = await response.json();
-
-        if (data.action === "follow_up_questions") {
-          storedContext = data.context;
-        } else {
-          storedContext = null;
-        }
-
-        resultBox.innerText = JSON.stringify(data, null, 2);
-
-      } catch (err) {
-        resultBox.innerText = "Error connecting to server: " + err.message;
-      }
-    }
-  </script>
-
+<script src="index.js"></script>
 </body>
 </html>
