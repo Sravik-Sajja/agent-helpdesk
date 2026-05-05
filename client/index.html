@@ -69,7 +69,10 @@
       resultBox.innerText = "Processing...";
 
       try {
-        const body = { message: text };
+        const body = {
+          message: text,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        };
         if (storedContext) body.previous_context = storedContext;
 
         const response = await fetch("http://localhost:8000/chat", {

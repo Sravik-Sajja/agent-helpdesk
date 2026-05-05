@@ -3,8 +3,8 @@
       "id": "conv_001",
       "message": "Hi, I need to reschedule my cardiology appointment that was set for next Tuesday. I'm available any afternoon next week. My insurance is BlueCross.",
       "expected_intent": "reschedule_appointment",
-      "expected_entities": {"specialty": "cardiology", "preferred_time": "afternoon", "insurance": "BlueCross", "urgency": "low"},
-      "expected_route": "follow_up_questions"
+      "expected_entities": {"specialty": "cardiology", "preferred_time": "afternoon", "insurance": "BlueCross", "urgency": "low", "date": "next week range"},
+      "expected_route": "self_schedule"
     },
     {
       "id": "conv_002",
@@ -237,7 +237,8 @@
           "expected_entities": {
             "specialty": "dermatology",
             "preferred_time": "morning",
-            "urgency": "low"
+            "urgency": "low",
+            "date": "next week range"
           },
           "expected_route": "self_schedule"
         }

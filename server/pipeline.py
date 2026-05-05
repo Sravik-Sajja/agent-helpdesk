@@ -3,6 +3,8 @@ from anthropic import Anthropic
 import os
 import json
 import logging
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +19,7 @@ Return ONLY valid JSON with this exact schema:
   "entities": {
     "specialty": "<medical department or field e.g. cardiology, dermatology, orthopedics — NOT appointment type if mentioned, else null>",
     "provider": "<specific doctor name if mentioned, else null>",
-    "date": "<date preference only if specific date day mentioned, else null>",
+    "date": "<specific date or date range in YYYY-MM-DD format if inferable from context using the current date, else null>",
     "preferred_time": "<time preference like morning/afternoon/weekend, else null>",
     "insurance": "<insurance name if mentioned, else null>",
     "symptoms": ["<list of symptoms if mentioned>"],
@@ -34,9 +36,15 @@ Return ONLY valid JSON with this exact schema:
 Be precise. Extract only what is explicitly stated. Do not infer specialty from symptoms."""
 
 
-def call_bot(message: str, previous_context: dict = None) -> dict:
+def call_bot(message: str, previous_context: dict = None, timezone: str = "UTC") -> dict:
     """Calls chatbot with patient message and returns JSON response"""
 
+    try:
+        tz = ZoneInfo(timezone)
+    except Exception:
+        tz = ZoneInfo("UTC")
+
+    current_time = datetime.now(tz).strftime("%A, %B %d, %Y %H:%M %Z")
     if previous_context:
         history = previous_context.get("conversation_history", [])
         history_text = "\n".join([f"User: {m}" for m in history])
@@ -45,10 +53,13 @@ def call_bot(message: str, previous_context: dict = None) -> dict:
 
                         Previous extraction: {json.dumps(previous_context['previous_json'])}
                         User follow up: {message}
+                        Current date/time: {current_time}
 
                         Update the extraction with the new information provided."""
     else:
-        user_content = message
+        user_content = f"""Current date/time: {current_time}
+
+                        User message: {message}"""
 
     response = client.messages.create(
         model="claude-haiku-4-5-20251001",

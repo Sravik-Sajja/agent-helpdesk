@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from pipeline import call_bot, generate_follow_up
-from database import insert_task, update_task_status
+from database import create_table, insert_task, update_task_status
 from router import route
 from dashboard import get_dashboard_data
 import logging
@@ -18,15 +18,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+create_table()
+
 class RequestData(BaseModel):
     message: str
     previous_context: dict | None = None
+    timezone: str = "UTC"
 
 @app.post("/chat")
 def chat(data: RequestData):
     try:
         message = data.message
-        chatbot_response = call_bot(message, data.previous_context)
+        chatbot_response = call_bot(message, data.previous_context, data.timezone)
         intent = chatbot_response.get("intent")
         entities = chatbot_response.get("entities", {})
         confidence = float(chatbot_response.get("confidence", 0.5))
