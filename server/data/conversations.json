@@ -207,7 +207,7 @@
           "expected_intent": "reschedule_appointment",
           "expected_entities": {
             "specialty": "rheumatology",
-            "date": "the 22nd",
+            "original_date": "the 22nd",
             "preferred_time": "afternoon",
             "urgency": "low"
           },
