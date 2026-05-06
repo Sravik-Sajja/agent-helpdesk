@@ -1,6 +1,6 @@
 HUMAN_HANDOFF_INTENTS = {"urgent_symptom_report", "billing_dispute"}
 SELF_SCHEDULE_INTENTS = {"reschedule_appointment", "cancel_appointment", "new_appointment"}
-STAFF_ROUTED_INTENTS = {"prescription_refill", "referral_request"}
+STAFF_ROUTED_INTENTS = {"prescription_refill", "document_request"}
 AUTO_RESPONSE_INTENTS = {"provider_inquiry", "general_inquiry"}
 NO_INTENT = {"none"}
 
@@ -47,7 +47,7 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
         missing = []
         if intent == "prescription_refill" and not entities.get("medication"):
             missing.append("medication name")
-        if intent == "referral_request" and not entities.get("specialty"):
+        if intent == "document_request" and not entities.get("specialty") and not entities.get("provider"):
             missing.append("type of doctor or care they need")
 
         if missing:

@@ -66,7 +66,7 @@ The routing layer (`router.py`) is intentionally rule-based on top of AI output 
 | Urgency flagged `high` by AI | `human_handoff` |
 | Intent: `urgent_symptom_report`, `billing_dispute` | `human_handoff` |
 | Intent: `reschedule_appointment`, `cancel_appointment`, `new_appointment` | `self_schedule` if all required fields present, else `follow_up_questions` |
-| Intent: `prescription_refill`, `referral_request` | `human_handoff` if complete, else `follow_up_questions` |
+| Intent: `prescription_refill`, `document_request` | `human_handoff` if complete, else `follow_up_questions` |
 | Intent: `provider_inquiry`, `general_inquiry` | `auto_response` (would query provider/FAQ DB) |
 | Intent: `none` | `clarify` |
 

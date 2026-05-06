@@ -55,7 +55,7 @@ function appendBotBubble(data) {
     const msgs = {
       human_handoff:       "Your request has been flagged for a staff member who will follow up shortly.",
       self_schedule:       "You're all set — your scheduling request has been made.",
-      auto_response:       "We found information that may help. Would pull from a FAQ database here",
+      auto_response:       "We found information that may help. Would pull from a database here.",
       follow_up_questions: "We need a bit more information to help you.",
       clarify:             "What can I help you with?",
     };

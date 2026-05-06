@@ -29,8 +29,8 @@
     },
     {
       "id": "conv_005",
-      "message": "I need a referral to see a neurologist. My primary care doctor said I should get one but didn't send anything over yet.",
-      "expected_intent": "referral_request",
+      "message": "I need a form signed by Dr.Patty, and I need it quickly.",
+      "expected_intent": "document_request",
       "expected_entities": {"specialty": "neurology", "urgency": "medium"},
       "expected_route": "human_handoff"
     },
@@ -169,7 +169,7 @@
         {
           "turn": 1,
           "message": "My doctor told me I need a referral but I'm not sure how to get one through your office.",
-          "expected_intent": "referral_request",
+          "expected_intent": "document_request",
           "expected_entities": {
             "urgency": "medium"
           },
@@ -178,7 +178,7 @@
         {
           "turn": 2,
           "message": "She said I need to see a cardiologist.",
-          "expected_intent": "referral_request",
+          "expected_intent": "document_request",
           "expected_entities": {
             "specialty": "cardiology",
             "urgency": "medium"

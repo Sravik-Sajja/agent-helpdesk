@@ -15,7 +15,7 @@ SYSTEM_PROMPT = """You are a medical intake assistant. Analyze patient messages 
  
 Return ONLY valid JSON with this exact schema:
 {
-  "intent": "<one of: reschedule_appointment, cancel_appointment, new_appointment, urgent_symptom_report, prescription_refill, referral_request, provider_inquiry, billing_dispute, general_inquiry, none>",
+  "intent": "<one of: reschedule_appointment, cancel_appointment, new_appointment, urgent_symptom_report, prescription_refill, document_request, provider_inquiry, billing_dispute, general_inquiry, none>",
   "entities": {
     "specialty": "<medical department or field e.g. cardiology, dermatology, orthopedics — NOT appointment type if mentioned, else null>",
     "provider": "<specific doctor name if mentioned, else null>",
@@ -35,6 +35,7 @@ Return ONLY valid JSON with this exact schema:
   "confidence": <float 0.0 to 1.0 — how confident you are in the intent classification>,
   "reasoning": "<one sentence explaining why you chose this intent>"
 }
+"document_request: use when patient asks for a signature or a form(e.g. referral)
 "none: use when the message is a greeting, casual conversation, or has no relation to medical scheduling, appointments, symptoms, prescriptions, or billing and you had no previous intent given to you"
 "general_inquiry: patient is asking about office information, hours, etc"
 "provider_inquiry: patient is asking about a doctor or staff member(may need to ask them which one they are talking about)"

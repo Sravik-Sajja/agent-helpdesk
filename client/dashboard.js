@@ -51,9 +51,11 @@ function renderCard(task, idx) {
     `<option value="${s}" ${s === task.status ? "selected" : ""}>${s.replace("_", " ")}</option>`
   ).join("");
 
+  const urgencyClass = urgency === "medium" ? "med" : urgency;
+
   return `
     <div class="task-card" style="animation-delay:${idx * 40}ms">
-      <div class="task-urgency-bar ${urgency}"></div>
+      <div class="task-urgency-bar ${urgencyClass}"></div>
       <div class="task-message">${esc(message)}</div>
       <div class="task-badges">
         <span class="badge route-${route}">${esc(routeLbl)}</span>

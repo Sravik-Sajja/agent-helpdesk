@@ -45,7 +45,7 @@ def chat(data: RequestData):
         if action == "follow_up_questions":
             follow_up_questions = generate_follow_up(entities, intent, reason, missing)
 
-        if action != "follow_up_questions" and action != "clarify":
+        if action != "follow_up_questions" and action != "clarify" and action != "auto_response":
             title = generate_summarized_title(intent, entities, conversation_history)
             insert_task(message, intent, entities, confidence, action, data.previous_context, reason, title)
 
