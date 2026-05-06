@@ -88,7 +88,7 @@ When the router returns `follow_up_questions`, the context (conversation history
 | API framework | FastAPI + Pydantic |
 | LLM | Claude Haiku (`claude-haiku-4-5`) via Anthropic SDK |
 | Database | SQLite (via `sqlite3`) |
-| Frontend | Vanilla HTML/CSS/JS (see note below) |
+| Frontend | HTML/CSS/JS |
 | Eval | Custom Python script (`evaluate.py`) |
 
 ---
