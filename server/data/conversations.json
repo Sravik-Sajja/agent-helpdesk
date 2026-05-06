@@ -31,7 +31,7 @@
       "id": "conv_005",
       "message": "I need a form signed by Dr.Patty, and I need it quickly.",
       "expected_intent": "document_request",
-      "expected_entities": {"specialty": "neurology", "urgency": "medium"},
+      "expected_entities": {"provider": "Dr.Patty", "urgency": "high"},
       "expected_route": "human_handoff"
     },
     {
