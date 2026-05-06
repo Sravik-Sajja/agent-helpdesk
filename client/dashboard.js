@@ -45,14 +45,7 @@ function renderCard(task, idx) {
     hour: "2-digit", minute: "2-digit"
   });
 
-  const message = task.previous_context
-    ? (() => {
-        try {
-          const ctx = JSON.parse(task.previous_context);
-          return (ctx.conversation_history || []).join(" → ");
-        } catch { return task.raw_message; }
-      })()
-    : task.raw_message;
+  const message = task.title;
 
   const opts = STATUSES.map(s =>
     `<option value="${s}" ${s === task.status ? "selected" : ""}>${s.replace("_", " ")}</option>`

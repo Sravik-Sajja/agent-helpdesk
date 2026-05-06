@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from pipeline import call_bot, generate_follow_up
+from pipeline import call_bot, generate_follow_up, generate_summarized_title
 from database import create_table, insert_task, update_task_status
 from router import route
 from dashboard import get_dashboard_data
@@ -45,7 +45,10 @@ def chat(data: RequestData):
         if action == "follow_up_questions":
             follow_up_questions = generate_follow_up(entities, intent, reason, missing)
 
-        if action != "follow_up_questions" and action != "clarify": insert_task(message, intent, entities, confidence, action, data.previous_context, reason)
+        if action != "follow_up_questions" and action != "clarify":
+            title = generate_summarized_title(intent, entities, conversation_history)
+            insert_task(message, intent, entities, confidence, action, data.previous_context, reason, title)
+
         return {
             "action": action,
             "reason": reason,

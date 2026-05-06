@@ -1,6 +1,7 @@
 HUMAN_HANDOFF_INTENTS = {"urgent_symptom_report", "billing_dispute"}
 SELF_SCHEDULE_INTENTS = {"reschedule_appointment", "cancel_appointment", "new_appointment"}
-FOLLOW_UP_INTENTS = {"prescription_refill", "referral_request", "provider_inquiry", "general_inquiry"}
+STAFF_ROUTED_INTENTS = {"prescription_refill", "referral_request"}
+AUTO_RESPONSE_INTENTS = {"provider_inquiry", "general_inquiry"}
 NO_INTENT = {"none"}
 
 LOW_CONFIDENCE_THRESHOLD = 0.55
@@ -26,22 +27,36 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
     if intent in SELF_SCHEDULE_INTENTS:
         missing = []
         if not entities.get("specialty") and not entities.get("provider") and not entities.get("appointment_type"): missing.append("specialty/provider/appointment_type")
-        if not entities.get("date"): missing.append("date")
+
         #Ignore preferred_time for cancel_appointment
         if intent == "reschedule_appointment" or intent == "new_appointment":
             if not entities.get("preferred_time"): missing.append("preferred_time")
+        
+        #Get original appointment date for reshedule appointment
+        if intent == "reschedule_appointment" or intent == "cancel_appointment":
+            if not entities.get("original_date"): missing.append("original_date")
+        if intent == "reschedule_appointment" or intent == "new_appointment":
+            if not entities.get("schedule_date"): missing.append("schedule_date")
 
-        if not missing:
-            return "self_schedule", "Sufficient detail for patient self-scheduling", []
-        else:
+        if missing:
             return "follow_up_questions", f"Missing {', '.join(missing)} for self-scheduling", missing
+        else:
+            return "self_schedule", "Sufficient detail for patient self-scheduling", []
 
-    if intent in FOLLOW_UP_INTENTS:
+    if intent in STAFF_ROUTED_INTENTS:
         missing = []
         if intent == "prescription_refill" and not entities.get("medication"):
             missing.append("medication name")
         if intent == "referral_request" and not entities.get("specialty"):
             missing.append("type of doctor or care they need")
+
+        if missing:
+            return "follow_up_questions", f"Missing {', '.join(missing)}", missing
+        else: 
+            return "human_handoff", f"Sufficient detail collected for '{intent}' — routing to staff", []
+    
+    if intent in AUTO_RESPONSE_INTENTS:
+        missing = []
         if intent == "provider_inquiry":
             provider = (entities.get("provider") or "").lower()
             if not provider:
@@ -52,11 +67,10 @@ def route(intent: str, entities: dict, confidence: float, raw_message: str) -> t
         if intent == "general_inquiry":
             # Would query FAQ/knowledge base table here
             return "auto_response", "General inquiry — would pull from database", []
-
+        
         if missing:
             return "follow_up_questions", f"Missing {', '.join(missing)}", missing
 
-        return "human_handoff", f"Sufficient detail collected for '{intent}' — routing to staff", []
     
     if intent in NO_INTENT:
         return "clarify", "No useful information", []

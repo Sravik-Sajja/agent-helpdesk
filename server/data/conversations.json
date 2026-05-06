@@ -3,7 +3,7 @@
       "id": "conv_001",
       "message": "Hi, I need to reschedule my cardiology appointment that was set for next Tuesday. I'm available any afternoon next week. My insurance is BlueCross.",
       "expected_intent": "reschedule_appointment",
-      "expected_entities": {"specialty": "cardiology", "preferred_time": "afternoon", "insurance": "BlueCross", "urgency": "low", "date": "next week range"},
+      "expected_entities": {"specialty": "cardiology", "preferred_time": "afternoon", "insurance": "BlueCross", "urgency": "low", "original_date": "next Tuesday", "schedule_date": "next week range"},
       "expected_route": "self_schedule"
     },
     {
@@ -24,7 +24,7 @@
       "id": "conv_004",
       "message": "I want to cancel my appointment on Friday the 15th with the orthopedics team.",
       "expected_intent": "cancel_appointment",
-      "expected_entities": {"specialty": "orthopedics", "date": "Friday the 15th", "urgency": "low"},
+      "expected_entities": {"specialty": "orthopedics", "original_date": "Friday the 15th", "urgency": "low"},
       "expected_route": "self_schedule"
     },
     {
@@ -83,12 +83,13 @@
       "turns": [
         {
           "turn": 1,
-          "message": "I need to reschedule my dermatology appointment, I'm free in the mornings.",
+          "message": "I need to reschedule my dermatology appointment from today, I'm free in the mornings.",
           "expected_intent": "reschedule_appointment",
           "expected_entities": {
             "specialty": "dermatology",
             "preferred_time": "morning",
-            "urgency": "low"
+            "urgency": "low",
+            "original_date": "today"
           },
           "expected_route": "follow_up_questions"
         },
@@ -98,9 +99,10 @@
           "expected_intent": "reschedule_appointment",
           "expected_entities": {
             "specialty": "dermatology",
-            "date": "next Thursday",
+            "schedule_date": "next Thursday",
             "preferred_time": "morning",
-            "urgency": "low"
+            "urgency": "low",
+            "original_date": "today"
           },
           "expected_route": "self_schedule"
         }
@@ -245,7 +247,7 @@
             "specialty": "dermatology",
             "preferred_time": "morning",
             "urgency": "low",
-            "date": "next week range"
+            "schedule_date": "next week range"
           },
           "expected_route": "self_schedule"
         }

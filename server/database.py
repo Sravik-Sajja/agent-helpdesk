@@ -25,18 +25,19 @@ def create_table():
                 route TEXT,
                 status TEXT DEFAULT 'pending',
                 notes TEXT,
-                previous_context TEXT
+                previous_context TEXT,
+                title TEXT
             )
         """)
         conn.commit()
 
-def insert_task(raw_message: str, intent: str, entities: dict, confidence: float, route: str, previous_context: dict, notes: str = "") -> int:
+def insert_task(raw_message: str, intent: str, entities: dict, confidence: float, route: str, previous_context: dict, notes: str = "", title: str = "") -> int:
     """Takes in user message and chatbot parse adding to database table"""
     with get_connection() as conn:
         cursor = conn.execute(
             """
-            INSERT INTO intake_tasks (created_at, raw_message, intent, entities, confidence, route, status, notes, previous_context)
-            VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
+            INSERT INTO intake_tasks (created_at, raw_message, intent, entities, confidence, route, status, notes, previous_context, title)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
             """,
             (
                 datetime.utcnow().isoformat(),
@@ -46,21 +47,22 @@ def insert_task(raw_message: str, intent: str, entities: dict, confidence: float
                 confidence,
                 route,
                 notes,
-                json.dumps(previous_context) if previous_context else None
+                json.dumps(previous_context) if previous_context else None,
+                title,
             ),
         )
         conn.commit()
         return cursor.lastrowid
 
- 
+
 def get_all_tasks():
     with get_connection() as conn:
         rows = conn.execute(
             "SELECT * FROM intake_tasks ORDER BY created_at DESC"
         ).fetchall()
     return [dict(r) for r in rows]
- 
- 
+
+
 def update_task_status(task_id: int, status: str):
     with get_connection() as conn:
         conn.execute(
